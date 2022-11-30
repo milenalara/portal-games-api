@@ -9,6 +9,12 @@ function getId() {
 
 let id = getId()
 
+async function getData(url) {
+  let response = await fetch(url)
+  let data = await response.json()
+  return data
+}
+
 async function fetchGame(id) {
   let response = await fetch(`${baseURL}/games/${id}${authKey}`)
   let game = await response.json()
@@ -23,48 +29,69 @@ async function fetchGames() {
 }
 
 async function renderGameInfo() {
-  let id = getId()
-  let game = await fetchGame(id)
+  let gameId = getId()
+  // let game = await getData()
+  let game = await getData(`${baseURL}/games/${gameId}${authKey}`)
+  console.log("game", game)
+
+  let strGenres = `${game.genres[0].name}`
+  for (let i = 1; i < game.genres.length; i++) {
+    strGenres += `, ${game.genres[i].name}`
+  }
+
+  let strPlatforms = `${game.platforms[0].platform.name}`
+  for (let i = 1; i < game.platforms.length; i++) {
+    strPlatforms += `, ${game.platforms[i].platform.name}`
+  }
+
+  let strPublishers = `${game.publishers[0].name}`
+  for (let i = 1; i < game.publishers.length; i++) {
+    strPublishers += `, ${game.publishers[i].name}`;
+  }
+
+  let releaseDate = game.released
+  const [year, month, day] = releaseDate.split("-")
+  let formatedDate = `${day}/${month}/${year}`
 
   let gameInfo = document.getElementById("game-info")
   gameInfo.innerHTML = `
-  <div class="col-10 col-sm-8 col-lg-6">
+  <h1 class="display-5 fw-bold lh-1 mb-3" id="main-title">${game.name}</h1>
+  <div class="col-12">
     <img src="${game.background_image}" id="gamebackground" class="d-block mx-lg-auto img-fluid"
-    alt="Bootstrap Themes" width="700" height="500" loading="lazy">
+    alt="Bootstrap Themes" loading="lazy">
   </div>
-  <div class="col-lg-6">
-    <h1 class="display-5 fw-bold lh-1 mb-3" id="main-title">${game.name}</h1>
-    <p class="lead">${game.description_raw}</p>
-    <div class="d-grid gap-2 d-md-flex justify-content-md-start">
-    <button type="button" class="btn btn-primary btn-lg px-4 me-md-2">Primary</button>
-    <button type="button" class="btn btn-outline-secondary btn-lg px-4">Default</button>
+  <div class="row mt-4">
+    <div class="col-6">
+      <ul class="destaque-info lead">
+        <li><span>Publisher</span>: ${strPublishers}</li>
+        <li><span>Lançamento</span>: ${formatedDate}</li >
+        <li><span>Plataformas</span>: ${strPlatforms}</li>
+        <li><span>Gêneros</span>: ${strGenres}</li>
+        <li><span>Avaliação</span>: ${game.rating}</li>
+      </ul >
+    </div>
+    <div class="col-6">
+      <p>${game.description_raw}</p>
+      <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+      </div>
     </div>
   </div>
 `
 }
 
-async function renderCarousel() {
+async function renderScheenshots() {
   let gamesList = await fetchGames()
   let game = gamesList.find(item => item.id == id)
-  console.log("linha49", game.short_screenshots)
-  let carousel = document.getElementById("carousel-inner-div")
-  let screenshots = `
-    < div class="carousel-item active" data - bs - interval="2000" >
-      <img src="${game.short_screenshots[0].image}" class="d-block w-100" alt="...">
-    </div>`
-
-  for (let i = 1; i < game.short_screenshots.length; i++) {
-    screenshots = `
-      <div class="carousel-item" data-bs-interval="2000">
-        <img src="${game.short_screenshots[i].image}" class="d-block w-100" alt="...">
-      </div>`
-  }
-
-  carousel.innerHTML = screenshots
+  document.getElementById("carousel-img-01").innerHTML = `<img src="${game.short_screenshots[1].image}" class="d-block w-100 carousel-imgs">`
+  document.getElementById("carousel-img-02").innerHTML = `<img src="${game.short_screenshots[2].image}" class="d-block w-100 carousel-imgs">`
+  document.getElementById("carousel-img-03").innerHTML = `<img src="${game.short_screenshots[3].image}" class="d-block w-100 carousel-imgs">`
+  document.getElementById("carousel-img-04").innerHTML = `<img src="${game.short_screenshots[4].image}" class="d-block w-100 carousel-imgs">`
+  document.getElementById("carousel-img-05").innerHTML = `<img src="${game.short_screenshots[5].image}" class="d-block w-100 carousel-imgs">`
+  document.getElementById("carousel-img-06").innerHTML = `<img src="${game.short_screenshots[6].image}" class="d-block w-100 carousel-imgs">`
 }
 
 
 onload = () => {
   renderGameInfo()
-  renderCarousel()
+  renderScheenshots()
 }

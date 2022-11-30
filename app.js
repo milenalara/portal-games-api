@@ -1,40 +1,32 @@
 const baseURL = "https://api.rawg.io/api"
 const authKey = "?key=6c8912da911d4c70a065a3fb17cdc671"
 
-async function fetchGames() {
-  let response = await fetch(`${baseURL}/games${authKey}`)
-  let data = await response.json()
-  let games = await data.results
-  return games
-}
+let searchBar = document.getElementById("pesquisa")
 
-async function fetchGame(id) {
-  let response = await fetch(`${baseURL}/games/${id}${authKey}`)
-  let game = await response.json()
-  return game
-}
-
-async function fetchPlatforms() {
-  let response = await fetch(`${baseURL}/platforms${authKey}`)
+async function getData(url) {
+  let response = await fetch(url)
   let data = await response.json()
-  let platforms = await data.results
-  return platforms
+  return data
 }
 
 async function searchGames() {
-  let search = document.getElementById("pesquisa").value
-  let data = await fetchGames()
-  let results = data.filter(item => {
-    if (item.name == search) {
+  let data = await getData(`${baseURL}/games${authKey}`)
+  let games = data.results
+
+  let results = games.filter(item => {
+    if (item.name == searchBar) {
       return item
     }
   })
-  console.log("linha 33", results)
+
+  return results
 }
 
 async function renderHighlightGame() {
-  let data = await fetchGames()
-  let game = await fetchGame(data[0].id)
+  let gamesData = await getData(`${baseURL}/games${authKey}`)
+  let gameId = gamesData.results[0].id
+
+  let game = await getData(`${baseURL}/games/${gameId}${authKey}`)
 
   let strGenres = `${game.genres[0].name}`
   for (let i = 1; i < game.genres.length; i++) {
@@ -59,32 +51,33 @@ async function renderHighlightGame() {
 
   if (destaque) {
     destaque.innerHTML = `
-      <div class="col-md-7">
-      <img class="main-image" src="${game.background_image}">
-    </div>
-    <div class="col-md-5">
-      <h3>${game.name}</h3>
-      <ul class="destaque-info">
-        <li><span>Sobre</span>: ${game.description_raw}</li>
-        <li><span>Publisher</span>: ${strPublishers}</li>
-        <li><span>Lançamento</span>: ${formatedDate}</li >
-        <li><span>Plataformas</span>: ${strPlatforms}</li>
-        <li><span>Gêneros</span>: ${strGenres}</li>
-        <li><span>Avaliação</span>: ${game.rating}</li>
-      </ul >
-    </div > `
+        <div class="col-md-7">
+        <img class="main-image" src="${game.background_image}">
+      </div>
+      <div class="col-md-5">
+        <h3>${game.name}</h3>
+        <ul class="destaque-info">
+          <li><span>Sobre</span>: ${game.description_raw}</li>
+          <li><span>Publisher</span>: ${strPublishers}</li>
+          <li><span>Lançamento</span>: ${formatedDate}</li >
+          <li><span>Plataformas</span>: ${strPlatforms}</li>
+          <li><span>Gêneros</span>: ${strGenres}</li>
+          <li><span>Avaliação</span>: ${game.rating}</li>
+        </ul >
+      </div > `
   }
 }
 
 async function renderGamesCards() {
-  let games = await fetchGames()
+  let data = await getData(`${baseURL}/games${authKey}`)
+  let games = data.results
   let cards = ''
   for (let i = 1; i < games.length; i++) {
     let game = games[i]
     cards += `
-    <div class="col-md-3">
-      <div class="card" style="width: 15rem;">
-        <img src="${game.background_image}" class="card-img-top">
+    <div class="col-md-4">
+      <div class="card">
+        <img src="${game.background_image}" class="card-img-top card-img-cover">
           <div class="card-body">
             <h5 class="card-title">${game.name}</h5>
             <p class="rating"><img id="icon-rating" src="./img/icon-star-empty.png" class="card-img-top"> ${game.rating}</p>
@@ -101,7 +94,8 @@ async function renderGamesCards() {
 }
 
 async function renderPlatforms() {
-  let platforms = await fetchPlatforms()
+  let data = await getData(`${baseURL}/platforms${authKey}`)
+  let platforms = data.results
   let cards = ""
   for (let i = 1; i < 4; i++) {
     let platform = platforms[i];
@@ -134,9 +128,20 @@ async function renderPlatforms() {
 
 }
 
+async function renderPublishers() {
+  let data = await getData(`${baseURL}/publishers${authKey}`)
+  console.log("33", data)
+}
+
+renderPublishers()
+
 onload = () => {
   renderHighlightGame()
   renderGamesCards()
   renderPlatforms()
   searchGames()
 }
+
+// searchBar.onchange = () => {
+//   searchGames()
+// }
