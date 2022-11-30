@@ -1,5 +1,5 @@
 const baseURL = "https://api.rawg.io/api"
-const authKey = "?key=6c8912da911d4c70a065a3fb17cdc671"
+const authKey = "key=6c8912da911d4c70a065a3fb17cdc671"
 
 let searchBar = document.getElementById("pesquisa")
 
@@ -9,24 +9,39 @@ async function getData(url) {
   return data
 }
 
-async function searchGames() {
-  let data = await getData(`${baseURL}/games${authKey}`)
+async function renderSearchCards(query) {
+
+  let data = await getData(`${baseURL}/games?search=${query}&${authKey}`)
+  console.log("data14", data)
   let games = data.results
+  console.log("games16", games)
+  let cards = ''
+  for (let i = 1; i < games.length; i++) {
+    let game = games[i]
+    cards += `
+    <div class="col-md-4">
+      <div class="card">
+        <img src="${game.background_image}" class="card-img-top card-img-cover">
+          <div class="card-body">
+            <h5 class="card-title">${game.name}</h5>
+            <p class="rating"><img id="icon-rating" src="./img/icon-star-empty.png" class="card-img-top"> ${game.rating}</p>
+            <p><em>Gênero:</em> Aventura</p>
+            <p><em>Plataformas:</em> PC, PlayStation 4, XBOX</p>
+            <a href="./game.html?id=${game.id}" id="${game.id}" class="btn btn-primary">Saiba mais &raquo</a>
+          </div>
+      </div>
+    </div> `
+  }
 
-  let results = games.filter(item => {
-    if (item.name == searchBar) {
-      return item
-    }
-  })
-
-  return results
+  let gameCards = document.getElementById("games-cards")
+  if (gameCards) gameCards.innerHTML = cards
 }
 
 async function renderHighlightGame() {
-  let gamesData = await getData(`${baseURL}/games${authKey}`)
+  let gamesData = await getData(`${baseURL}/games?${authKey}`)
   let gameId = gamesData.results[0].id
 
-  let game = await getData(`${baseURL}/games/${gameId}${authKey}`)
+  let game = await getData(`${baseURL}/games/${gameId}?${authKey}`)
 
   let strGenres = `${game.genres[0].name}`
   for (let i = 1; i < game.genres.length; i++) {
@@ -69,7 +84,7 @@ async function renderHighlightGame() {
 }
 
 async function renderGamesCards() {
-  let data = await getData(`${baseURL}/games${authKey}`)
+  let data = await getData(`${baseURL}/games?${authKey}`)
   let games = data.results
   let cards = ''
   for (let i = 1; i < games.length; i++) {
@@ -94,7 +109,7 @@ async function renderGamesCards() {
 }
 
 async function renderPlatforms() {
-  let data = await getData(`${baseURL}/platforms${authKey}`)
+  let data = await getData(`${baseURL}/platforms?${authKey}`)
   let platforms = data.results
   let cards = ""
   for (let i = 1; i < 4; i++) {
@@ -129,17 +144,17 @@ async function renderPlatforms() {
 }
 
 async function renderPublishers() {
-  let data = await getData(`${baseURL}/publishers${authKey}`)
-  console.log("33", data)
+  let data = await getData(`${baseURL}/publishers?${authKey}`)
 }
 
-renderPublishers()
 
 onload = () => {
   renderHighlightGame()
   renderGamesCards()
   renderPlatforms()
-  searchGames()
+  renderGamesCards()
+  renderPublishers()
+  renderSearchCards("witcher")
 }
 
 // searchBar.onchange = () => {

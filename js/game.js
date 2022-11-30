@@ -30,9 +30,7 @@ async function fetchGames() {
 
 async function renderGameInfo() {
   let gameId = getId()
-  // let game = await getData()
   let game = await getData(`${baseURL}/games/${gameId}${authKey}`)
-  console.log("game", game)
 
   let strGenres = `${game.genres[0].name}`
   for (let i = 1; i < game.genres.length; i++) {
