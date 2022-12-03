@@ -13,6 +13,10 @@ h1 {
   color: red;
 }
 
+.search-container {
+  display: flex;
+}
+
 .nav-link:hover {
   color: red;
 }
